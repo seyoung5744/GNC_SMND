@@ -1,0 +1,5 @@
+tensorflow==2.3.0
+DateTime==4.3
+pandas
+Keras
+opencv-python
