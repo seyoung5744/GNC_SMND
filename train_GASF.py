@@ -1,17 +1,16 @@
 # %%
 import os
-import pandas as pd
 import numpy as np
 from tqdm import tqdm
 from sklearn.utils import shuffle                                                        
 import tensorflow as tf
+import matplotlib.pyplot as plt
 import cv2
-import datetime    
 # %%
 base_path = os.getcwd()
 print(base_path)
 # %%
-class_names = ['Corona', 'Noise', 'Surface', 'Void']
+class_names = ['Noise', 'PD']
 class_names_label = {class_name:i for i, class_name in enumerate(class_names)}
 
 nb_classes = len(class_names)
@@ -19,7 +18,8 @@ nb_classes = len(class_names)
 IMAGE_SIZE = (256, 256)
 # %%
 def load_data():
-    datasets = ['raw/images/', 'data_images/test/']
+    # datasets = ['split_data/prpd_images/train/', 'split_data/prpd_images/test/']
+    datasets = ["./images/split_data/GASF/train/", "./images/split_data/GASF/test/"]
     output = []
     
     for dataset in datasets:
@@ -60,33 +60,34 @@ test_images = test_images / 255.0
 model = tf.keras.Sequential([
     tf.keras.layers.Conv2D(32, (3, 3), activation = 'relu', input_shape = (256, 256, 3)), 
     tf.keras.layers.MaxPooling2D(2,2),
-    tf.keras.layers.Conv2D(32, (3, 3), activation = 'relu'),
+    tf.keras.layers.Conv2D(64, (3, 3), activation = 'relu'),
     tf.keras.layers.MaxPooling2D(2,2),
     tf.keras.layers.Flatten(),
     tf.keras.layers.Dense(128, activation=tf.nn.relu),
-    tf.keras.layers.Dense(4, activation=tf.nn.softmax)
+    tf.keras.layers.Dense(2, activation=tf.nn.softmax) 
 ])
 # %%
 model.compile(optimizer = 'adam', loss = 'sparse_categorical_crossentropy', metrics=['accuracy'])
 # %%
 history = model.fit(train_images, train_labels, batch_size=10, epochs=10, validation_split=0.2)
 # %%
-model.save("cnn_image_all.h5")
+model.save("./model/GASF.h5")
 # %%
-result = model.evaluate(test_images, test_labels)
-print(result)
-# %%
-predictions = model.predict(test_images)
-pred_labels = np.argmax(predictions, axis = 1)
-# %%
-df = pd.DataFrame(test_imgname, columns=["imgname"])
-# %%
-df["Corona"] = predictions[: , 0]
-df["Noise"] = predictions[: , 1]
-df["Surface"] = predictions[: , 2]
-df["Void"] = predictions[: , 3]
-df["predict"] = pred_labels
-# %%
-filename = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-df.to_csv(filename+".csv", index=False, encoding="utf-8-sig")
+model.evaluate(test_images, test_labels)
+
+test_loss = model.evaluate(test_images, test_labels)
+print(test_loss)
+
+y_vloss = history.history['val_loss']
+y_loss = history.history['loss']
+
+x_len = np.arange(len(y_loss))
+plt.plot(x_len, y_vloss, marker='.', c='red', label="Validation-set Loss")
+plt.plot(x_len, y_loss, marker='.', c='blue', label="Train-set Loss")
+
+plt.legend(loc='upper right')
+plt.grid()
+plt.xlabel('epoch')
+plt.ylabel('loss')
+plt.show()
 # %%

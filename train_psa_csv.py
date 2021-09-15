@@ -14,7 +14,8 @@ IMAGE_SIZE = (256, 256)
 
 # %%
 def load_data():
-    datasets = ["split_data/prpd/train/", "split_data/prpd/test/"]
+    datasets = ["./data/split_data/02. 표준데이터(PSA)/train/", "./data/split_data/02. 표준데이터(PSA)/test/"]
+    # datasets = ["split_data/psa/train", "split_data/psa/test/"]
     output = []
 
     for dataset in datasets:
@@ -61,11 +62,11 @@ model = tf.keras.Sequential([
     tf.keras.layers.Dense(4, activation=tf.nn.softmax)
 ])
 # %%
-model.compile(optimizer = 'adam', loss = 'sparse_categorical_crossentropy', metrics=['accuracy'])
+model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 # %%
 history = model.fit(train_images, train_labels, batch_size=10, epochs=10, validation_split=0.2)
 # %%
-model.save("prpd_csv.h5")
+model.save("psa_csv.h5")
 # %%
 test_loss = model.evaluate(test_images, test_labels)
 # %%

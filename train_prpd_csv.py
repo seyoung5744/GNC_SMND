@@ -1,11 +1,11 @@
 # %%
 import os            
-import pandas as pd
 import numpy as np
 from tqdm import tqdm
 from sklearn.utils import shuffle 
 import tensorflow as tf
-import datetime
+import matplotlib.pyplot as plt
+# from tf.keras.callbacks import ModelCheckpoint, EarlyStopping
 # %%
 class_names = ['Corona', 'Noise', 'Surface', 'Void']
 class_names_label = {class_name:i for i, class_name in enumerate(class_names)}
@@ -16,7 +16,8 @@ IMAGE_SIZE = (256, 256)
 
 # %%
 def load_data():
-    datasets = ["raw/tabular/", "data_tabular/test/"]
+    datasets = ["./data/split_data/05. 표준데이터(PRPD)/train/", "./data/split_data/05. 표준데이터(PRPD)/test/"]
+    # datasets = ["split_data/prpd/train/", "split_data/prpd/test/"]
     output = []
 
     for dataset in datasets:
@@ -56,7 +57,7 @@ train_imgnames, train_images, train_labels = shuffle(train_imgnames, train_image
 model = tf.keras.Sequential([
     tf.keras.layers.Conv2D(32, (3, 3), activation = 'relu', input_shape = (256, 256, 1)), 
     tf.keras.layers.MaxPooling2D(2,2),
-    tf.keras.layers.Conv2D(32, (3, 3), activation = 'relu'),
+    tf.keras.layers.Conv2D(64, (3, 3), activation = 'relu'),
     tf.keras.layers.MaxPooling2D(2,2),
     tf.keras.layers.Flatten(),
     tf.keras.layers.Dense(128, activation=tf.nn.relu),
@@ -67,21 +68,21 @@ model.compile(optimizer = 'adam', loss = 'sparse_categorical_crossentropy', metr
 # %%
 history = model.fit(train_images, train_labels, batch_size=10, epochs=10, validation_split=0.2)
 # %%
-model.save("cnn_csv_all.h5")
+model.save("prpd_csv.h5")
 # %%
 test_loss = model.evaluate(test_images, test_labels)
-# %%
-predictions = model.predict(test_images)
-pred_labels = np.argmax(predictions, axis = 1) 
-# %%
-df = pd.DataFrame(test_imgnames, columns=["imgname"])
-# %%
-df["Corona"] = predictions[: , 0]
-df["Noise"] = predictions[: , 1]
-df["Surface"] = predictions[: , 2]
-df["Void"] = predictions[: , 3]
-df["predict"] = pred_labels
-# %%
-filename = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-df.to_csv(filename+".csv", index=False, encoding="utf-8-sig")
+print(test_loss)
+
+y_vloss = history.history['val_loss']
+y_loss = history.history['loss']
+
+x_len = np.arange(len(y_loss))
+plt.plot(x_len, y_vloss, marker='.', c='red', label="Validation-set Loss")
+plt.plot(x_len, y_loss, marker='.', c='blue', label="Train-set Loss")
+
+plt.legend(loc='upper right')
+plt.grid()
+plt.xlabel('epoch')
+plt.ylabel('loss')
+plt.show()
 # %%
