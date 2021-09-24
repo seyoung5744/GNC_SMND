@@ -18,7 +18,7 @@ newcolors[-1:, :] = np.array([1/256, 1/256, 1/256, 1]) # black
 
 newcmp = ListedColormap(np.flipud(newcolors))
 
-plt.figure(figsize=(10,10))
+plt.figure(figsize=(7,5))
 
 
 plt.imshow(prpd_numpy, cmap=newcmp)
