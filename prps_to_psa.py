@@ -137,103 +137,105 @@ def get_threshold_dict():
     return thresholds
 
 
-convert_folder_dir = "./data/02. 표준데이터(PSA2)/"
-thresholds_dict = get_threshold_dict()
+convert_folder_dir = "./data/02. 표준데이터(PSA)/"
 
-for root, subdirs, files in os.walk("./data/01. 표준데이터(PRPS)"):
-    if len(root.split("\\")) != 1:
-        sub_folder_name = root.split("\\")[1] # 00. Void()
-    else:
-        continue
-    
-     #* 폴더 라벨링을 위한 split
-    labeling = sub_folder_name.split(" ")[1] # Corona, Void...
-    print("진행 중... ", labeling)
-    
-    added_folder_name = convert_folder_dir + labeling #* ./data/05. 표준데이터(PRPD)/Void ... ./data/05. 표준데이터(PRPD)/Corona
-    
-    
-    if not os.path.exists(added_folder_name):
-        os.makedirs(added_folder_name)
+def prps2psa():
+    thresholds_dict = get_threshold_dict()
 
-    file_list = os.listdir(root)
-    
-    thresholds = thresholds_dict[labeling]
+    for root, subdirs, files in os.walk("./data/01. 표준데이터(PRPS)"):
+        if len(root.split("\\")) != 1:
+            sub_folder_name = root.split("\\")[1] # 00. Void()
+        else:
+            continue
+        
+        #* 폴더 라벨링을 위한 split
+        labeling = sub_folder_name.split(" ")[1] # Corona, Void...
+        print("진행 중... ", labeling)
+        
+        added_folder_name = convert_folder_dir + labeling #* ./data/05. 표준데이터(PRPD)/Void ... ./data/05. 표준데이터(PRPD)/Corona
+        
+        
+        if not os.path.exists(added_folder_name):
+            os.makedirs(added_folder_name)
 
-    for i in range(len(file_list)):
-        prps = pd.read_csv(root + "\\" + file_list[i], names=range(0, 256))
+        file_list = os.listdir(root)
         
-        
-        """
-        sin함수 x축 256칸으로 분리
+        thresholds = thresholds_dict[labeling]
 
-        - 첫 번째 y 값 : 0
-        - 마지막 y 값 : -2.44929360e-16
-        """
-        start = 0
-        end = 2 * np.pi
-
-        x = np.linspace(start, end, 256)
-        len(np.sin(x))
-        
-        """
-        prps 한 행에서 문턱값(Th)보다 큰 인덱스만 추출
-        """
-        file_name = file_list[i].split('[')[0]
-        
-        Th = thresholds[file_name] # 문턱값(Th)
-    
-        index_list = np.where(prps[:] > Th)[1]
-        
-        """
-        Th를 적용한 인덱스에 해당하는 sin(x) 값
-        """
-        sin_values = np.sin(x)[index_list]
-        
-        """
-        sin값들을 이용한 x 값 계산 : (현재 - 과거)
-        """
-        X = np.diff(sin_values)
-        
-        """
-        sin값들을 이용한 y 값 계산 : (미래 - 과거)
-        """
-        Y = []
-
-        for idx in range(1, len(sin_values)-1):
-            Y.append(sin_values[idx+1] - sin_values[idx-1])
-        
-        """
-        계산을 편의를 위해 np.array로 변환
-
-        - list의 경우 [1,2,3] + 3 계산 불가
-            - [1,2,3] + 3 (X)
-        - np.array의 경우 [1,2,3] + 3 계산 가능
-            - np.array([1,2,3]) + 3 => [4,5,6]
-        """
-        Y = np.array(Y)
-        
-        """
-        PSA Mapping 좌표 변환
-        - out : float
-        """
-        X_mapping = ((X + 2) /4) * 255
-        Y_mapping = ((Y + 2) /4) * 255
-        
-        """
-        소수 -> 정수
-        """
-        X_mapping = X_mapping[:-1]
-        X_mapping = (X_mapping).astype(np.int)
-        Y_mapping = (Y_mapping).astype(np.int)
+        for i in range(len(file_list)):
+            prps = pd.read_csv(root + "\\" + file_list[i], names=range(0, 256))
             
-        """
-        X, Y 좌표에 따른 csv추출
-        """
-        block = np.zeros((256,256))
-
-        for i in range(len(X_mapping)):
-            block[X_mapping[i], Y_mapping[i]] += 1
             
-        pd.DataFrame(block).to_csv(convert_folder_dir + labeling + "/" + file_name + "[PSA변환].csv"  , index = False, header=False,  mode="w")
+            """
+            sin함수 x축 256칸으로 분리
+
+            - 첫 번째 y 값 : 0
+            - 마지막 y 값 : -2.44929360e-16
+            """
+            start = 0
+            end = 2 * np.pi
+
+            x = np.linspace(start, end, 256)
+            len(np.sin(x))
+            
+            """
+            prps 한 행에서 문턱값(Th)보다 큰 인덱스만 추출
+            """
+            file_name = file_list[i].split('[')[0]
+            
+            Th = thresholds[file_name] # 문턱값(Th)
         
+            index_list = np.where(prps[:] > Th)[1]
+            
+            """
+            Th를 적용한 인덱스에 해당하는 sin(x) 값
+            """
+            sin_values = np.sin(x)[index_list]
+            
+            """
+            sin값들을 이용한 x 값 계산 : (현재 - 과거)
+            """
+            X = np.diff(sin_values)
+            
+            """
+            sin값들을 이용한 y 값 계산 : (미래 - 과거)
+            """
+            Y = []
+
+            for idx in range(1, len(sin_values)-1):
+                Y.append(sin_values[idx+1] - sin_values[idx-1])
+            
+            """
+            계산을 편의를 위해 np.array로 변환
+
+            - list의 경우 [1,2,3] + 3 계산 불가
+                - [1,2,3] + 3 (X)
+            - np.array의 경우 [1,2,3] + 3 계산 가능
+                - np.array([1,2,3]) + 3 => [4,5,6]
+            """
+            Y = np.array(Y)
+            
+            """
+            PSA Mapping 좌표 변환
+            - out : float
+            """
+            X_mapping = ((X + 2) /4) * 255
+            Y_mapping = ((Y + 2) /4) * 255
+            
+            """
+            소수 -> 정수
+            """
+            X_mapping = X_mapping[:-1]
+            X_mapping = (X_mapping).astype(np.int)
+            Y_mapping = (Y_mapping).astype(np.int)
+                
+            """
+            X, Y 좌표에 따른 csv추출
+            """
+            block = np.zeros((256,256))
+
+            for i in range(len(X_mapping)):
+                block[X_mapping[i], Y_mapping[i]] += 1
+                
+            pd.DataFrame(block).to_csv(convert_folder_dir + labeling + "/" + file_name + "[PSA변환].csv"  , index = False, header=False,  mode="w")
+            
