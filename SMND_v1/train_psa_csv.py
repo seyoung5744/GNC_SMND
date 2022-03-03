@@ -14,7 +14,8 @@ IMAGE_SIZE = (256, 256)
 
 # %%
 def load_data():
-    datasets = ["./data/split_data/02. 표준데이터(PSA)/train/", "./data/split_data/02. 표준데이터(PSA)/test/"]
+    # datasets = ["./data/split_data/02. 표준데이터(PSA)/train/", "./data/split_data/02. 표준데이터(PSA)/test/"]
+    datasets = ["./data/split_data/02. 표준데이터(PSA)2/train/", "./data/split_data/02. 표준데이터(PSA)2/test/"]
     # datasets = ["split_data/psa/train", "split_data/psa/test/"]
     output = []
 

@@ -7,16 +7,16 @@ from keras.models import load_model
 class_names = ['Corona', 'Noise', 'Surface', 'Void']
 class_names_label = {class_name:i for i, class_name in enumerate(class_names)}
 
-dataset = "split_data/psa/test/"
+datasets = "./data/split_data/02. 표준데이터(PSA)2/test/"
 test_imgnames = []
 test_images = []
 test_labels = []
 
-for folder in os.listdir(dataset):
+for folder in os.listdir(datasets):
     label = class_names_label[folder]
     
-    for file in os.listdir(os.path.join(dataset, folder)):
-        img_path = os.path.join(os.path.join(dataset, folder), file)
+    for file in os.listdir(os.path.join(datasets, folder)):
+        img_path = os.path.join(os.path.join(datasets, folder), file)
 
         image = np.loadtxt(img_path, delimiter=",", dtype=np.float32)
         image = np.reshape(image, (256, 256, 1))
@@ -38,7 +38,7 @@ df[class_names] = predictions
 df["predict"] = [class_names[label] for label in pred_labels]
 
 filename = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-df.to_csv(filename+".csv", index=False, encoding="utf-8-sig")
+df.to_csv(filename+"_psa.csv", index=False, encoding="utf-8-sig")
 
 acc = len(df.loc[df['label'] == df["predict"]])/len(df)
 print("Accuracy : {}".format(acc))

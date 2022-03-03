@@ -137,11 +137,11 @@ def get_threshold_dict():
     return thresholds
 
 
-convert_folder_dir = "./data/02. 표준데이터(PSA)/"
+convert_folder_dir = "./data/02. 표준데이터(PSA)2/"
 
 def prps2psa():
     thresholds_dict = get_threshold_dict()
-
+    print(thresholds_dict)
     for root, subdirs, files in os.walk("./data/01. 표준데이터(PRPS)"):
         if len(root.split("\\")) != 1:
             sub_folder_name = root.split("\\")[1] # 00. Void()
@@ -239,3 +239,5 @@ def prps2psa():
                 
             pd.DataFrame(block).to_csv(convert_folder_dir + labeling + "/" + file_name + "[PSA변환].csv"  , index = False, header=False,  mode="w")
             
+
+prps2psa()
