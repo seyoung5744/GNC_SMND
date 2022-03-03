@@ -1,7 +1,7 @@
 import cv2
 import pandas as pd
 import numpy as np
-
+import matplotlib.pyplot as plt
 
 def PD2Image(file_list):
     images = []
@@ -30,4 +30,8 @@ def PD2Image(file_list):
     """
     이미지 return (n, 260,260,3)
     """
-    return images_3
+    
+    for image, file in zip(images_3, file_list):
+        file_name = file_name.split('\\')[-1].split("csv")[0] # 파일 명
+        plt.imsave(CONVERTED_JPEG_FOLDER_DIR + label + "/"+file_name+"jpeg",image) # 파일 
+    
