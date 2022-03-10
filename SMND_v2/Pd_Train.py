@@ -50,7 +50,15 @@ class PdTrain:
                             callbacks = [cp_best_acc, cp_best_loss],
                             verbose = 2)
         
-        return history
+        train_acc = history.history['accuracy']
+        train_loss = history.history['loss']
+        val_acc = history.history['val_accuracy']
+        val_loss = history.history['val_loss']  
+        
+        '''
+        dictionary 형태로 반환, value는 list 형태
+        '''
+        return {'accuracy': train_acc, 'val_accuracy': val_acc, 'loss': train_loss, 'val_loss': val_loss}
         
     def evaluate(self, best_acc_pth, best_loss_pth, train_data):
         # best_acc
@@ -61,6 +69,11 @@ class PdTrain:
         self.model.load_weights(best_loss_pth)
         loss2, accuracy2 = model.evaluate(train_data)
         
+        '''
+        화면에 나타낼 떄
+        1차적으로 accuracy가 큰거 먼저 
+        if, accuracy가 동일하다면 loss가 작은것을 화면에 출력
+        '''
         return {"best accuracy model" :(loss1, accuracy1), "best loss model" :(loss2, accuracy2)}
     
     def predict(self, model_path, test_data):
@@ -74,35 +87,12 @@ class PdTrain:
         return classification_report(true_label, predict_label, target_names=["Corona","Noise","Surface","Void"])
         
     def get_confusion_matrix(self, true_label, predict_label):
+        '''
+        반환시 다음과 같은 형태 띔.
+        [[17  0  0  0]
+         [ 0  9  0  2]
+         [ 0  0 27  2]
+         [ 0  0  3 38]]
+        '''
          return confusion_matrix(true_label, predict_label)
         
-    def plot_confusion_matrix(self, true_label, predict_label, classes,
-                          normalize = False,
-                          title = 'Confusion matrix',
-                          cmap = plt.cm.Blues):
-        cm = confusion_matrix(true_label, predict_label)
-        plt.figure(figsize = (6,6))
-        plt.imshow(cm, interpolation = 'nearest', cmap = cmap)
-        plt.title(title)
-        plt.colorbar()
-        plt.grid(False)
-        tick_marks = np.arange(len(classes))
-        plt.xticks(tick_marks, classes, rotation = 90)
-        plt.yticks(tick_marks, classes)
-        if normalize:
-            cm = cm.astype('float') / cm.sum(axis = 1)[:, np.newaxis]
-
-        thresh = cm.max() / 2.
-        cm = np.round(cm,2)
-        for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-            plt.text(j, i, cm[i, j],
-                     fontsize = 12,
-                     horizontalalignment = "center",
-                     color = "white" if cm[i, j] > thresh else "black")
-        plt.tight_layout()
-        plt.ylabel('True label')
-        plt.xlabel('Predicted label')
-
-        #     plt.savefig("./psa models/" + model_net.name + "/" + model_net.name + "_성과지표.png")
-        plt.savefig("./cross correlation psa models/" + model_net.name + "/" + model_net.name + "_성과지표.png")
-    
