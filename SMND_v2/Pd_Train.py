@@ -1,5 +1,6 @@
 #import packages
 
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -95,4 +96,30 @@ class PdTrain:
          [ 0  0  3 38]]
         '''
          return confusion_matrix(true_label, predict_label)
+     
+    def wrong_predict(self, true_label, predict_label):
+        classes = ["Corona","Noise","Surface","Void"]
+        
+        test_files_path_dict = []
+
+        for c in classes:
+            test_files_path_dict.append(list(map(lambda x: test_dir + c + '/' + x, os.listdir(test_dir + c))))
+
+        # 2차원 리스트 -> 1차원 리스트
+        test_files_path_dict = sum(test_files_path_dict, [])
+        
+        wrong_result_index = []
+        path_list = []
+        
+        # (예측 != 정답) 인덱스 리스트에 저장
+        for n in range(0, len(true_label)):
+            if predict_label[n] != true_label[n]:
+                wrong_result_index.append(n)
+
+
+        for n in wrong_result_index:     
+            path_list.append( {"path": test_files_path_dict[n], "Label":  classes[true_label[n]], "Prediction":classes[predict_label[n]]})
+            
+
+        return path_list
         
