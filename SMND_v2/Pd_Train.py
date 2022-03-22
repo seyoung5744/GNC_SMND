@@ -79,9 +79,10 @@ class PdTrain:
     
     def predict(self, model_path, test_data):
         model = load_model(model_path)
+        loss, accuracy = model.evaluate(test_data)
         yhat_test = model.predict(test_data).round(4)
         
-        return yhat_test
+        return {"test loss" : loss, "test accuracy" : accuracy}, yhat_test
 
 
     def get_classification_report(self, true_label, predict_label):
