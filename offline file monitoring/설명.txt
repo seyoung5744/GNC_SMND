@@ -1,0 +1,6 @@
+1. conda activate 가상환경
+2. python file_monitoring.py 실행
+3. 프로그램 실행 시 ./data 파일에 있던 기존 데이터 자동 삭제
+
+4. 처음에 warning메시지가 cmd에 보이는데 보이면 그때부터 ./data 파일에 prps 데이터 input
+5. prps 데이터 input 할때마다 결과 추출
